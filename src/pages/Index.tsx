@@ -1,17 +1,7 @@
-import { Navigation } from "@/components/Navigation";
-import { HeroSection } from "@/components/HeroSection";
-import { MetaDecks } from "@/components/MetaDecks";
-import { Features } from "@/components/Features";
+import { BruteForceTestingPage } from "@/components/BruteForceTestingPage";
 
 const Index = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <HeroSection />
-      <Features />
-      <MetaDecks />
-    </div>
-  );
+  return <BruteForceTestingPage />;
 };
 
 export default Index;
