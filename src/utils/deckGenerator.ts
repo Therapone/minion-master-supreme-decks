@@ -144,7 +144,7 @@ export class DeckGenerator {
           card.cost >= 3 || 
           card.abilities?.includes('Heal') || 
           card.abilities?.includes('Armor') ||
-          card.type === 'Building'
+          card.type === 'Gebäude'
         )
         .slice(0, this.DECK_SIZE);
       

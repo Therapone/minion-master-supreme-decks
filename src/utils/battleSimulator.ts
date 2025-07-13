@@ -79,10 +79,10 @@ export class BattleSimulator {
     // Spiele optimale Karten
     const playableCards = hand.filter(card => card.cost <= remainingMana);
     
-    // Sortiere nach Effizienz (Attack + Health / Cost)
+    // Sortiere nach Effizienz inklusive Spezialeffekten
     playableCards.sort((a, b) => {
-      const efficiencyA = (a.attack + a.health) / Math.max(1, a.cost);
-      const efficiencyB = (b.attack + b.health) / Math.max(1, b.cost);
+      const efficiencyA = this.calculateCardEfficiency(a);
+      const efficiencyB = this.calculateCardEfficiency(b);
       return efficiencyB - efficiencyA;
     });
 
@@ -90,10 +90,10 @@ export class BattleSimulator {
       if (remainingMana >= card.cost) {
         remainingMana -= card.cost;
         
-        if (card.type === 'Minion' || card.type === 'Building') {
+        if (card.type === 'Kreatur' || card.type === 'Gebäude') {
           board.push(card);
-        } else if (card.type === 'Spell') {
-          // Direkte Damage Spells
+        } else if (card.type === 'Zauber') {
+          // Direkte Damage Zauber
           damageDealt += card.attack;
         }
 
@@ -111,16 +111,34 @@ export class BattleSimulator {
     return Math.max(0, damageDealt);
   }
 
-  private calculateMasterDamage(master: any, mana: number): number {
-    // Vereinfachte Master-Fähigkeits-Simulation
-    let damage = 0;
+  // Neue Methode zur Berechnung der Karteneffizienz inklusive Spezialeffekte
+  private calculateCardEfficiency(card: Card): number {
+    let baseValue = (card.attack + card.health) / Math.max(1, card.cost);
     
-    if (master.perks.includes('Lightning_Bolt') && mana >= 2) damage += 3;
-    if (master.perks.includes('Fireball') && mana >= 3) damage += 4;
-    if (master.perks.includes('Poison_Volley') && mana >= 2) damage += 2;
+    // Spezialeffekt-Bonus
+    if (card.effectPower) {
+      baseValue += card.effectPower * 0.8; // Starke Gewichtung für Spezialeffekte
+    }
     
-    return damage;
+    // Fähigkeiten-Boni
+    if (card.abilities) {
+      for (const ability of card.abilities) {
+        switch (ability) {
+          case 'Schnell': baseValue += 1.2; break;
+          case 'Fliegend': baseValue += 1.5; break;
+          case 'Rüstung': baseValue += 1.0; break;
+          case 'Heilung': baseValue += 1.3; break;
+          case 'Tarnung': baseValue += 0.8; break;
+          case 'Spott': baseValue += 0.7; break;
+          case 'Lebensraub': baseValue += 1.1; break;
+          default: baseValue += 0.3; break;
+        }
+      }
+    }
+    
+    return baseValue;
   }
+
 
   private analyzeBattleFactors(deck1: Deck, deck2: Deck): BattleResult['factors'] {
     return {
@@ -179,31 +197,91 @@ export class BattleSimulator {
     const master = deck.master;
     let synergy = 0;
     
-    // Stormbringer + Lightning Karten
-    if (master.name === 'Stormbringer') {
+    // Deutsche Master-Namen und Synergien
+    if (master.name === 'Sturmrufer') {
       const lightningCards = deck.cards.filter(card => 
-        card.synergies?.includes('Lightning') || card.abilities?.includes('Electric')
+        card.synergies?.includes('Blitz') || card.abilities?.includes('Elektrisiert')
       ).length;
       synergy += lightningCards * 0.1;
     }
     
-    // Mordar + Fire Karten
+    // Mordar + Feuer Karten
     if (master.name === 'Mordar') {
       const fireCards = deck.cards.filter(card => 
-        card.synergies?.includes('Fire') || card.abilities?.includes('Burn')
+        card.synergies?.includes('Feuer') || card.abilities?.includes('Verbrennung')
       ).length;
       synergy += fireCards * 0.1;
     }
     
-    // King Puff + Swarm Karten
-    if (master.name === 'King Puff') {
+    // König Puff + Schwarm Karten
+    if (master.name === 'König Puff') {
       const swarmCards = deck.cards.filter(card => 
-        card.synergies?.includes('Swarm') || card.cost <= 2
+        card.synergies?.includes('Schwarm') || card.cost <= 2
       ).length;
       synergy += swarmCards * 0.1;
     }
     
+    // Apep + Leeren/Gift Karten
+    if (master.name === 'Apep') {
+      const voidCards = deck.cards.filter(card => 
+        card.synergies?.includes('Leere') || card.synergies?.includes('Schatten')
+      ).length;
+      synergy += voidCards * 0.1;
+    }
+    
+    // Settsu + Chi/Zen Karten
+    if (master.name === 'Settsu') {
+      const chiCards = deck.cards.filter(card => 
+        card.synergies?.includes('Chi') || card.synergies?.includes('Unterstützung')
+      ).length;
+      synergy += chiCards * 0.1;
+    }
+    
     return Math.min(1, synergy);
+  }
+
+  // Neue Methode zur Berechnung der Effekt-Synergie
+  private calculateEffectSynergy(cards: Card[]): number {
+    let synergyScore = 0;
+    
+    // Zähle verschiedene Effekt-Typen
+    const effectTypes = {
+      onPlay: 0,
+      onDeath: 0,
+      passive: 0,
+      triggered: 0
+    };
+    
+    cards.forEach(card => {
+      if (card.specialEffects) {
+        if (card.specialEffects.onPlay) effectTypes.onPlay++;
+        if (card.specialEffects.onDeath) effectTypes.onDeath++;
+        if (card.specialEffects.passive) effectTypes.passive++;
+        if (card.specialEffects.triggered) effectTypes.triggered++;
+      }
+    });
+    
+    // Bewerte Effekt-Diversität (Vielfalt ist gut)
+    const totalEffects = Object.values(effectTypes).reduce((a, b) => a + b, 0);
+    const effectDiversity = Object.values(effectTypes).filter(count => count > 0).length;
+    
+    synergyScore = (totalEffects * 2) + (effectDiversity * 5);
+    
+    return Math.min(30, synergyScore); // Max 30 Bonus-Punkte
+  }
+
+  // Erweiterte Master-Damage Berechnung
+  private calculateMasterDamage(master: any, mana: number): number {
+    let damage = 0;
+    
+    // Deutsche Perk-Namen
+    if (master.perks.includes('Blitzschlag') && mana >= 2) damage += 3;
+    if (master.perks.includes('Feuerball') && mana >= 3) damage += 4;
+    if (master.perks.includes('Giftsalve') && mana >= 2) damage += 2;
+    if (master.perks.includes('Puff-Stampfer') && mana >= 1) damage += 1;
+    if (master.perks.includes('Geister-Infusion') && mana >= 2) damage += 2;
+    
+    return damage;
   }
 
   private analyzeCounterplay(deck1: Deck, deck2: Deck): number {
@@ -222,7 +300,7 @@ export class BattleSimulator {
     
     // Armor vs Direct Damage
     const deck1Armor = deck1.cards.filter(card => card.abilities?.includes('Armor')).length;
-    const deck2Spells = deck2.cards.filter(card => card.type === 'Spell').length;
+    const deck2Spells = deck2.cards.filter(card => card.type === 'Zauber').length;
     if (deck1Armor > 0 && deck2Spells > 3) counterScore += 0.2;
     
     return Math.round(counterScore * 100);

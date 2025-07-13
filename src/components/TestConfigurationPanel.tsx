@@ -25,10 +25,10 @@ export function TestConfigurationPanel({ onStartTest, isRunning }: TestConfigura
 
   const strategies = [
     { id: 'AGGRO', name: 'Aggro Rush', icon: Zap, color: 'destructive' },
-    { id: 'CONTROL', name: 'Control', icon: Shield, color: 'secondary' },
-    { id: 'MIDRANGE', name: 'Midrange', icon: Target, color: 'accent' },
-    { id: 'COMBO', name: 'Combo', icon: Brain, color: 'gaming-purple' },
-    { id: 'MIXED', name: 'Mixed Strategy', icon: Sword, color: 'gaming-blue' }
+    { id: 'CONTROL', name: 'Kontrolle', icon: Shield, color: 'secondary' },
+    { id: 'MIDRANGE', name: 'Mittelfeld', icon: Target, color: 'accent' },
+    { id: 'COMBO', name: 'Kombination', icon: Brain, color: 'gaming-purple' },
+    { id: 'MIXED', name: 'Gemischte Strategie', icon: Sword, color: 'gaming-blue' }
   ];
 
   const handleStrategyToggle = (strategyId: string, checked: boolean) => {
@@ -96,7 +96,7 @@ export function TestConfigurationPanel({ onStartTest, isRunning }: TestConfigura
                     <div className="flex items-center gap-2">
                       <Zap className="w-4 h-4" />
                       <div>
-                        <div>Quick (5-10 Min)</div>
+                        <div>Schnell (5-10 Min)</div>
                         <div className="text-xs text-muted-foreground">Jedes Deck vs 10 Gegner</div>
                       </div>
                     </div>
@@ -114,7 +114,7 @@ export function TestConfigurationPanel({ onStartTest, isRunning }: TestConfigura
                     <div className="flex items-center gap-2">
                       <Brain className="w-4 h-4" />
                       <div>
-                        <div>Extensive (1-3 Std)</div>
+                        <div>Ausführlich (1-3 Std)</div>
                         <div className="text-xs text-muted-foreground">Jeder gegen jeden</div>
                       </div>
                     </div>
