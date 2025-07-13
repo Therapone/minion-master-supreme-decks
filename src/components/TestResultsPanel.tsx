@@ -280,7 +280,7 @@ export function TestResultsPanel({
             </CardTitle>
           </CardHeader>
           
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <h4 className="font-semibold">Master</h4>
@@ -290,6 +290,12 @@ export function TestResultsPanel({
                   <div className="text-xs text-muted-foreground mt-1">
                     {topDeck.master.health} HP
                   </div>
+                  {topDeck.master.perks && (
+                    <div className="text-xs text-gaming-blue mt-1">
+                      {topDeck.master.perks.slice(0, 2).join(', ')}
+                      {topDeck.master.perks.length > 2 && '...'}
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -308,27 +314,123 @@ export function TestResultsPanel({
                     <span>Synergie:</span>
                     <span>{Math.round(topDeck.strategySynergy)}%</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span>Gesamt Mana:</span>
+                    <span>{topDeck.totalCost}</span>
+                  </div>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <h4 className="font-semibold">Karten-Verteilung</h4>
+                <h4 className="font-semibold">Mana-Kurve</h4>
                 <div className="grid grid-cols-3 gap-1 text-xs">
                   {[1,2,3,4,5].map(cost => {
                     const count = topDeck.cards.filter(card => card.cost === cost).length;
+                    const percentage = Math.round((count / topDeck.cards.length) * 100);
                     return (
-                      <div key={cost} className="text-center p-1 bg-muted/30 rounded">
+                      <div key={cost} className="text-center p-2 bg-muted/30 rounded">
                         <div className="font-semibold">{count}</div>
                         <div className="text-muted-foreground">{cost}M</div>
+                        <div className="text-xs text-muted-foreground">{percentage}%</div>
                       </div>
                     );
                   })}
-                  <div className="text-center p-1 bg-muted/30 rounded">
+                  <div className="text-center p-2 bg-muted/30 rounded">
                     <div className="font-semibold">
                       {topDeck.cards.filter(card => card.cost >= 6).length}
                     </div>
                     <div className="text-muted-foreground">6+M</div>
+                    <div className="text-xs text-muted-foreground">
+                      {Math.round((topDeck.cards.filter(card => card.cost >= 6).length / topDeck.cards.length) * 100)}%
+                    </div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Vollständige Kartenliste */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-lg flex items-center gap-2">
+                <Sword className="w-5 h-5" />
+                Komplette Kartenliste ({topDeck.cards.length} Karten)
+              </h4>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {topDeck.cards
+                  .sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name))
+                  .map((card, index) => (
+                  <div 
+                    key={`${card.id}-${index}`} 
+                    className="p-3 bg-muted/20 rounded-lg border border-muted hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{card.name}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {card.type} • {card.faction}
+                        </div>
+                        {card.abilities && card.abilities.length > 0 && (
+                          <div className="text-xs text-gaming-blue mt-1">
+                            {card.abilities.join(', ')}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs px-2 py-1 ${
+                            card.cost <= 2 ? 'border-gaming-purple text-gaming-purple' :
+                            card.cost <= 4 ? 'border-gaming-blue text-gaming-blue' :
+                            'border-gaming-gold text-gaming-gold'
+                          }`}
+                        >
+                          {card.cost}M
+                        </Badge>
+                        
+                        <div className="text-xs text-muted-foreground">
+                          {card.attack}/{card.health}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Fraktions-Analyse */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h4 className="font-semibold">Fraktions-Verteilung</h4>
+                <div className="space-y-2">
+                  {getFactionDistribution(topDeck.cards).map(faction => (
+                    <div key={faction.name} className="flex items-center justify-between p-2 bg-muted/20 rounded">
+                      <span className="text-sm font-medium">{faction.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{faction.count} Karten</span>
+                        <Badge variant="outline" className="text-xs">
+                          {Math.round((faction.count / topDeck.cards.length) * 100)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-semibold">Karten-Typen</h4>
+                <div className="space-y-2">
+                  {getTypeDistribution(topDeck.cards).map(type => (
+                    <div key={type.name} className="flex items-center justify-between p-2 bg-muted/20 rounded">
+                      <span className="text-sm font-medium">{type.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{type.count} Karten</span>
+                        <Badge variant="outline" className="text-xs">
+                          {Math.round((type.count / topDeck.cards.length) * 100)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -390,4 +492,30 @@ function getStrategyIcon(strategy: string) {
     case 'COMBO': return <Brain className="w-4 h-4 text-gaming-gold" />;
     default: return <Sword className="w-4 h-4 text-muted-foreground" />;
   }
+}
+
+function getFactionDistribution(cards: any[]) {
+  const factionMap = new Map<string, number>();
+  
+  cards.forEach(card => {
+    const current = factionMap.get(card.faction) || 0;
+    factionMap.set(card.faction, current + 1);
+  });
+  
+  return Array.from(factionMap.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+function getTypeDistribution(cards: any[]) {
+  const typeMap = new Map<string, number>();
+  
+  cards.forEach(card => {
+    const current = typeMap.get(card.type) || 0;
+    typeMap.set(card.type, current + 1);
+  });
+  
+  return Array.from(typeMap.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 }
