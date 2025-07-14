@@ -361,36 +361,82 @@ export function TestResultsPanel({
                   .map((card, index) => (
                   <div 
                     key={`${card.id}-${index}`} 
-                    className="p-3 bg-muted/20 rounded-lg border border-muted hover:bg-muted/40 transition-colors"
+                    className="relative p-3 bg-muted/20 rounded-lg border border-muted hover:bg-muted/40 transition-colors group"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-sm">{card.name}</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {card.type} • {card.faction}
-                        </div>
-                        {card.abilities && card.abilities.length > 0 && (
-                          <div className="text-xs text-gaming-blue mt-1">
-                            {card.abilities.join(', ')}
+                    <div className="flex items-start gap-3">
+                      {/* Kartenbild */}
+                      <div className="relative w-16 h-20 rounded-md overflow-hidden border border-muted bg-muted/10 flex-shrink-0">
+                        {card.image && (
+                          <img 
+                            src={card.image} 
+                            alt={card.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        {!card.image && (
+                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                            Karte
                           </div>
                         )}
+                        
+                        {/* Mana-Kosten Badge auf dem Bild */}
+                        <div className={`absolute top-1 left-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shadow-md ${
+                          card.cost <= 2 ? 'bg-gaming-purple text-white' :
+                          card.cost <= 4 ? 'bg-gaming-blue text-white' :
+                          'bg-gaming-gold text-black'
+                        }`}>
+                          {card.cost}
+                        </div>
                       </div>
                       
-                      <div className="flex flex-col items-end gap-1">
-                        <Badge 
-                          variant="outline" 
-                          className={`text-xs px-2 py-1 ${
-                            card.cost <= 2 ? 'border-gaming-purple text-gaming-purple' :
-                            card.cost <= 4 ? 'border-gaming-blue text-gaming-blue' :
-                            'border-gaming-gold text-gaming-gold'
-                          }`}
-                        >
-                          {card.cost}M
-                        </Badge>
-                        
-                        <div className="text-xs text-muted-foreground">
-                          {card.attack}/{card.health}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm text-foreground">{card.name}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {card.type} • {card.faction} • {card.rarity}
                         </div>
+                        
+                        {/* Stats */}
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="text-xs font-medium text-gaming-red">
+                            ⚔ {card.attack}
+                          </div>
+                          <div className="text-xs font-medium text-gaming-green">
+                            ❤ {card.health}
+                          </div>
+                          {card.effectPower && (
+                            <div className="text-xs font-medium text-gaming-purple">
+                              ✦ {card.effectPower}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Fähigkeiten */}
+                        {card.abilities && card.abilities.length > 0 && (
+                          <div className="text-xs text-gaming-blue mt-1 font-medium">
+                            {card.abilities.join(' • ')}
+                          </div>
+                        )}
+                        
+                        {/* Spezialeffekte */}
+                        {card.specialEffects && (
+                          <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                            {card.specialEffects.onPlay && (
+                              <div><span className="text-gaming-gold">Beim Spielen:</span> {card.specialEffects.onPlay}</div>
+                            )}
+                            {card.specialEffects.passive && (
+                              <div><span className="text-gaming-blue">Passiv:</span> {card.specialEffects.passive}</div>
+                            )}
+                            {card.specialEffects.triggered && (
+                              <div><span className="text-gaming-purple">Ausgelöst:</span> {card.specialEffects.triggered}</div>
+                            )}
+                            {card.specialEffects.onDeath && (
+                              <div><span className="text-gaming-red">Beim Tod:</span> {card.specialEffects.onDeath}</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

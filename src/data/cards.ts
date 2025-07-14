@@ -1,4 +1,7 @@
 // Minion Masters Karten-Datenbank
+import scratImage from '@/assets/cards/scrat-generated.png';
+import assassinImage from '@/assets/cards/assassin-generated.png';
+import fireImpImage from '@/assets/cards/fire-imp-generated.png';
 export interface Card {
   id: string;
   name: string;
@@ -79,7 +82,7 @@ export const CARDS: Card[] = [
     id: 'scrat',
     name: 'Scrat',
     cost: 1,
-    attack: 2,
+    attack: 3,
     health: 1,
     faction: 'Scrat',
     rarity: 'Gewöhnlich',
@@ -90,7 +93,7 @@ export const CARDS: Card[] = [
     },
     synergies: ['Schwarm'],
     effectPower: 3,
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400'
+    image: scratImage
   },
   {
     id: 'fire_imp',
@@ -107,7 +110,7 @@ export const CARDS: Card[] = [
     },
     synergies: ['Feuer', 'Kobold'],
     effectPower: 4,
-    image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400'
+    image: fireImpImage
   },
   {
     id: 'shockrock',
@@ -131,8 +134,8 @@ export const CARDS: Card[] = [
   {
     id: 'assassin',
     name: 'Assassine',
-    cost: 2,
-    attack: 4,
+    cost: 4,
+    attack: 8,
     health: 1,
     faction: 'Leere',
     rarity: 'Gewöhnlich',
@@ -144,7 +147,7 @@ export const CARDS: Card[] = [
     },
     synergies: ['Schatten'],
     effectPower: 6,
-    image: 'https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=400'
+    image: assassinImage
   },
   {
     id: 'warrior',
