@@ -1,9 +1,10 @@
-// Minion Masters Karten-Datenbank
+// Minion Masters Karten-Datenbank mit dynamischem Wiki-Loader
 import scratImage from '@/assets/cards/scrat-generated.png';
 import assassinImage from '@/assets/cards/assassin-real.png';
 import fireImpImage from '@/assets/cards/fire-imp-real.jpg';
 import colossusImage from '@/assets/cards/colossus-real.png';
 import guardianImage from '@/assets/cards/guardian-real.png';
+import { WikiCardLoader } from '@/utils/wikiCardLoader';
 export interface Card {
   id: string;
   name: string;
@@ -495,6 +496,43 @@ export const CARDS: Card[] = [
     image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400'
   }
 ];
+
+// Dynamische Kartengenerierung - kombiniert statische und Wiki-Karten
+export async function getAllAvailableCards(): Promise<Card[]> {
+  try {
+    // Lade zusätzliche Karten von der Wiki
+    const wikiCardIds = await WikiCardLoader.loadCardList();
+    const wikiCards = await WikiCardLoader.loadCards(wikiCardIds.slice(0, 50)); // Erste 50 für Performance
+    
+    // Konvertiere Wiki-Karten zu internem Format
+    const convertedWikiCards = wikiCards.map(wikiCard => WikiCardLoader.wikiToInternalCard(wikiCard));
+    
+    // Kombiniere statische und Wiki-Karten (entferne Duplikate)
+    const staticCardIds = new Set(CARDS.map(card => card.id));
+    const uniqueWikiCards = convertedWikiCards.filter(wikiCard => !staticCardIds.has(wikiCard.id));
+    
+    return [...CARDS, ...uniqueWikiCards];
+  } catch (error) {
+    console.error('Fehler beim Laden der Wiki-Karten:', error);
+    return CARDS; // Fallback auf statische Karten
+  }
+}
+
+// Erweiterte Kartengenerierung für große Mengen
+export async function generateExtendedCardPool(maxCards: number = 200): Promise<Card[]> {
+  try {
+    const wikiCardIds = await WikiCardLoader.loadCardList();
+    const selectedIds = wikiCardIds.slice(0, Math.min(maxCards - CARDS.length, wikiCardIds.length));
+    const wikiCards = await WikiCardLoader.loadCards(selectedIds);
+    
+    const convertedCards = wikiCards.map(wikiCard => WikiCardLoader.wikiToInternalCard(wikiCard));
+    
+    return [...CARDS, ...convertedCards];
+  } catch (error) {
+    console.error('Fehler beim Erstellen des erweiterten Card-Pools:', error);
+    return CARDS;
+  }
+}
 
 // Vordefinierte Strategie-Archetypen für Tester
 export const STRATEGY_ARCHETYPES = {

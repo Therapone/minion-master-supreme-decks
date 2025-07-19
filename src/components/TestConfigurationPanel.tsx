@@ -6,8 +6,31 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
 import { Play, Settings, Zap, Target, Brain, Shield, Sword } from 'lucide-react';
-import { TestConfiguration } from '@/utils/deckTester';
+
+// Erweiterte Test-Konfiguration mit Wiki-Karten Support
+export interface TestConfig {
+  strategy: string;
+  master: string;
+  maxCost: number;
+  deckSize: number;
+  testCount: number;
+  evolutionRounds: number;
+  useExtendedCardPool: boolean;
+  maxCards: number;
+}
+
+// Legacy Interface für Kompatibilität
+interface TestConfiguration {
+  maxDecks: number;
+  testAgainstTop: number;
+  strategies: string[];
+  minWinRate: number;
+  testDepth: 'QUICK' | 'NORMAL' | 'EXTENSIVE';
+  useExtendedCardPool?: boolean;
+  maxCards?: number;
+}
 
 interface TestConfigurationPanelProps {
   onStartTest: (config: TestConfiguration) => void;
@@ -20,7 +43,9 @@ export function TestConfigurationPanel({ onStartTest, isRunning }: TestConfigura
     testAgainstTop: 50,
     strategies: ['AGGRO', 'CONTROL', 'MIDRANGE'],
     minWinRate: 60,
-    testDepth: 'NORMAL'
+    testDepth: 'NORMAL',
+    useExtendedCardPool: true,
+    maxCards: 200
   });
 
   const strategies = [
@@ -238,7 +263,49 @@ export function TestConfigurationPanel({ onStartTest, isRunning }: TestConfigura
             <li>• Identifiziert mathematisch optimale Strategien</li>
             <li>• Berücksichtigt Master-Synergien und Counters</li>
           </ul>
-        </div>
+            </div>
+
+            {/* Wiki-Karten Optionen */}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold">Wiki-Kartenpool</Label>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="useExtendedCardPool"
+                  checked={config.useExtendedCardPool || false}
+                  onChange={(e) => setConfig({...config, useExtendedCardPool: e.target.checked})}
+                  className="rounded border-input"
+                />
+                <Label htmlFor="useExtendedCardPool" className="text-sm">
+                  Erweiterten Kartenpool verwenden (inkl. Wiki-Karten)
+                </Label>
+              </div>
+              
+              {config.useExtendedCardPool && (
+                <div className="space-y-2">
+                  <Label htmlFor="maxCards" className="text-sm">
+                    Maximale Anzahl Karten: {config.maxCards || 200}
+                  </Label>
+                  <Slider
+                    id="maxCards"
+                    min={50}
+                    max={300}
+                    step={50}
+                    value={[config.maxCards || 200]}
+                    onValueChange={([value]) => setConfig({...config, maxCards: value})}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>50 Karten</span>
+                    <span>300 Karten</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    💡 Mehr Karten = bessere Decks, aber langsamere Tests
+                  </div>
+                </div>
+              )}
+            </div>
       </CardContent>
     </Card>
   );
