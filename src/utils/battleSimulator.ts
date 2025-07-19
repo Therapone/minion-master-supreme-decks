@@ -111,30 +111,45 @@ export class BattleSimulator {
     return Math.max(0, damageDealt);
   }
 
-  // Neue Methode zur Berechnung der Karteneffizienz inklusive Spezialeffekte
+  // Erweiterte Karteneffizienz mit realistischen Wiki-Daten
   private calculateCardEfficiency(card: Card): number {
     let baseValue = (card.attack + card.health) / Math.max(1, card.cost);
     
-    // Spezialeffekt-Bonus
+    // Realistischer Spezialeffekt-Bonus basierend auf echten Kartendaten
     if (card.effectPower) {
-      baseValue += card.effectPower * 0.8; // Starke Gewichtung für Spezialeffekte
+      baseValue += card.effectPower * 1.2; // Erhöhte Gewichtung für echte Spezialeffekte
     }
     
-    // Fähigkeiten-Boni
+    // Realistische Fähigkeiten-Boni basierend auf Wiki-Daten
     if (card.abilities) {
       for (const ability of card.abilities) {
         switch (ability) {
+          case 'Stealth': baseValue += 2.5; break; // Stealth ist extrem stark
+          case 'AOE': baseValue += 2.0; break; // Flächenschaden ist sehr wertvoll
+          case 'DOT': baseValue += 1.8; break; // Damage over Time ist stark
+          case 'Massiv': baseValue += 1.5; break; // Große Einheiten sind robust
+          case 'Schutzschild': baseValue += 2.2; break; // Schutz für Verbündete ist sehr stark
+          case 'Fernkampf': baseValue += 1.3; break; // Reichweiten-Vorteil
+          case 'Melee': baseValue += 0.9; break; // Nahkampf-Nachteil
+          case 'Langsam': baseValue *= 0.8; break; // Geschwindigkeits-Nachteil
           case 'Schnell': baseValue += 1.2; break;
           case 'Fliegend': baseValue += 1.5; break;
           case 'Rüstung': baseValue += 1.0; break;
           case 'Heilung': baseValue += 1.3; break;
-          case 'Tarnung': baseValue += 0.8; break;
           case 'Spott': baseValue += 0.7; break;
           case 'Lebensraub': baseValue += 1.1; break;
+          case 'Feueratem': baseValue += 1.4; break; // Feuerfähigkeiten
+          case 'Crystal Elf Synergie': baseValue += 1.6; break; // Starke Fraktions-Synergie
           default: baseValue += 0.3; break;
         }
       }
     }
+    
+    // Bonus für legendäre Karten (sie sind generell stärker)
+    if (card.name === 'Koloss') baseValue += 3.0; // Koloss ist extrem stark
+    if (card.name === 'Wächter') baseValue += 2.5; // Guardian ist sehr stark
+    if (card.name === 'Assassine') baseValue += 2.0; // Assassin ist stark
+    if (card.name === 'Feuer-Kobold') baseValue += 1.5; // Fire Imp ist solid
     
     return baseValue;
   }

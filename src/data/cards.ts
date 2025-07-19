@@ -1,7 +1,9 @@
 // Minion Masters Karten-Datenbank
 import scratImage from '@/assets/cards/scrat-generated.png';
-import assassinImage from '@/assets/cards/assassin-generated.png';
-import fireImpImage from '@/assets/cards/fire-imp-generated.png';
+import assassinImage from '@/assets/cards/assassin-real.png';
+import fireImpImage from '@/assets/cards/fire-imp-real.jpg';
+import colossusImage from '@/assets/cards/colossus-real.png';
+import guardianImage from '@/assets/cards/guardian-real.png';
 export interface Card {
   id: string;
   name: string;
@@ -98,18 +100,19 @@ export const CARDS: Card[] = [
   {
     id: 'fire_imp',
     name: 'Feuer-Kobold',
-    cost: 1,
-    attack: 1,
-    health: 2,
-    faction: 'Legion',
+    cost: 4,
+    attack: 20,
+    health: 130,
+    faction: 'Leere',
     rarity: 'Gewöhnlich',
     type: 'Kreatur',
-    abilities: ['Verbrennung'],
+    abilities: ['DOT', 'Feueratem', 'Fernkampf'],
     specialEffects: {
-      onDeath: 'Verursacht 2 Feuerschaden an nahestehenden Feinden'
+      triggered: 'Hinterlässt feurige DOT für 10 Ticks à 20 Schaden (200 Gesamtschaden)',
+      passive: 'Vorhersage der Bewegung des Ziels, AOE-Radius 3'
     },
-    synergies: ['Feuer', 'Kobold'],
-    effectPower: 4,
+    synergies: ['Feuer', 'DOT', 'Fernkampf'],
+    effectPower: 7,
     image: fireImpImage
   },
   {
@@ -135,18 +138,19 @@ export const CARDS: Card[] = [
     id: 'assassin',
     name: 'Assassine',
     cost: 4,
-    attack: 8,
-    health: 1,
+    attack: 70,
+    health: 150,
     faction: 'Leere',
     rarity: 'Gewöhnlich',
     type: 'Kreatur',
-    abilities: ['Tarnung', 'Schnell'],
+    abilities: ['Stealth', 'Melee'],
     specialEffects: {
-      passive: 'Unsichtbar für 3 Sekunden beim Betreten der Arena',
-      triggered: 'Verdoppelt Schaden wenn Feind von hinten angegriffen wird'
+      onPlay: 'Wird sofort getarnt beim Erscheinen',
+      triggered: 'Dreifacher Schaden (210) aus der Tarnung',
+      passive: 'Wird nach 2 Sekunden ohne Angriff/Schaden wieder getarnt'
     },
-    synergies: ['Schatten'],
-    effectPower: 6,
+    synergies: ['Schatten', 'Stealth'],
+    effectPower: 8,
     image: assassinImage
   },
   {
@@ -242,20 +246,20 @@ export const CARDS: Card[] = [
   {
     id: 'colossus',
     name: 'Koloss',
-    cost: 4,
-    attack: 6,
-    health: 8,
-    faction: 'Imperium',
-    rarity: 'Episch',
+    cost: 9,
+    attack: 250,
+    health: 1000,
+    faction: 'Leere',
+    rarity: 'Legendär',
     type: 'Kreatur',
-    abilities: ['Langsam', 'Massiv'],
+    abilities: ['AOE', 'Massiv', 'Langsam'],
     specialEffects: {
-      passive: 'Kann nicht durch kleine Kreaturen blockiert werden',
-      onPlay: 'Verursacht 2 Schaden an allen Feinden beim Betreten'
+      triggered: 'Angriff trifft alle Bodeneinheiten in 180° Bogen vor sich',
+      passive: 'Sehr langsam (Geschwindigkeit 3), aber enormer AOE-Schaden'
     },
-    synergies: ['Tank', 'Schwer'],
-    effectPower: 7,
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400'
+    synergies: ['Tank', 'AOE', 'Legendär'],
+    effectPower: 10,
+    image: colossusImage
   },
   {
     id: 'dragon',
@@ -454,6 +458,24 @@ export const CARDS: Card[] = [
     synergies: ['Feuer', 'Elemental'],
     effectPower: 4,
     image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400'
+  },
+  {
+    id: 'guardian',
+    name: 'Wächter',
+    cost: 5,
+    attack: 100,
+    health: 800,
+    faction: 'Zen-Chi',
+    rarity: 'Legendär',
+    type: 'Kreatur',
+    abilities: ['Schutzschild', 'Crystal Elf Synergie'],
+    specialEffects: {
+      passive: 'Absorbiert 66% des Schadens aller Crystal Elf Einheiten in 9 Reichweite',
+      triggered: 'Nur 2 Kopien in Teamkämpfen erlaubt'
+    },
+    synergies: ['Zen-Chi', 'Unterstützung', 'Schutz'],
+    effectPower: 9,
+    image: guardianImage
   },
   {
     id: 'scrat_tank',
