@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TestResults } from '@/utils/deckGenerator';
+import { DeckSelector } from '@/components/DeckSelector';
+import { CardDetailModal } from '@/components/CardDetailModal';
+import { Card as CardType } from '@/data/cards';
 import { 
   Trophy, 
   TrendingUp, 
@@ -12,7 +16,8 @@ import {
   Crown,
   Sword,
   Shield,
-  Brain
+  Brain,
+  Eye
 } from 'lucide-react';
 
 interface TestResultsPanelProps {
@@ -30,6 +35,19 @@ export function TestResultsPanel({
   isRunning, 
   onStopTest 
 }: TestResultsPanelProps) {
+  const [selectedDeckIndex, setSelectedDeckIndex] = useState(0);
+  const [selectedCard, setSelectedCard] = useState<CardType | null>(null);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+
+  const handleCardClick = (card: CardType) => {
+    setSelectedCard(card);
+    setIsCardModalOpen(true);
+  };
+
+  const closeCardModal = () => {
+    setIsCardModalOpen(false);
+    setSelectedCard(null);
+  };
   
   if (!results && !isRunning) {
     return (
@@ -104,10 +122,18 @@ export function TestResultsPanel({
   if (!results) return null;
 
   const topDeck = results.bestDecks[0];
-  const topWinRate = results.results.get(topDeck?.id || '') || 0;
+  const selectedDeck = results.bestDecks[selectedDeckIndex];
+  const selectedWinRate = results.results.get(selectedDeck?.id || '') || 0;
 
   return (
     <div className="space-y-6">
+      {/* Card Detail Modal */}
+      <CardDetailModal 
+        card={selectedCard}
+        isOpen={isCardModalOpen}
+        onClose={closeCardModal}
+      />
+
       {/* Übersicht */}
       <Card className="border-gaming-gold shadow-glow">
         <CardHeader>
@@ -135,9 +161,9 @@ export function TestResultsPanel({
             
             <div className="text-center space-y-2">
               <div className="text-2xl font-bold text-gaming-purple">
-                {Math.round(topWinRate)}%
+                {Math.round(selectedWinRate)}%
               </div>
-              <div className="text-sm text-muted-foreground">Beste Win-Rate</div>
+              <div className="text-sm text-muted-foreground">Aktuell gewählt</div>
             </div>
             
             <div className="text-center space-y-2">
@@ -150,60 +176,13 @@ export function TestResultsPanel({
         </CardContent>
       </Card>
 
-      {/* Top Decks */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-gaming-gold" />
-            Top 5 Decks
-          </CardTitle>
-        </CardHeader>
-        
-        <CardContent>
-          <div className="space-y-3">
-            {results.bestDecks.slice(0, 5).map((deck, index) => {
-              const winRate = results.results.get(deck.id) || 0;
-              const rankColors = ['text-gaming-gold', 'text-gray-300', 'text-amber-600', 'text-gaming-blue', 'text-gaming-purple'];
-              
-              return (
-                <div key={deck.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className={`text-2xl font-bold ${rankColors[index]}`}>
-                      #{index + 1}
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <div className="font-semibold">
-                        {deck.master.name} - {deck.strategy}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          {deck.master.faction}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          Ø {deck.averageCost.toFixed(1)} Mana
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {deck.factionSynergy.toFixed(0)}% Synergie
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-right space-y-1">
-                    <div className="text-xl font-bold text-success">
-                      {Math.round(winRate)}%
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Win-Rate
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Deck Selector */}
+      <DeckSelector 
+        decks={results.bestDecks}
+        winRates={results.results}
+        selectedDeckIndex={selectedDeckIndex}
+        onSelectDeck={setSelectedDeckIndex}
+      />
 
       {/* Strategien-Analyse */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -270,13 +249,16 @@ export function TestResultsPanel({
         </Card>
       </div>
 
-      {/* Deck Details - Bestes Deck */}
-      {topDeck && (
+      {/* Deck Details - Aktuell gewähltes Deck */}
+      {selectedDeck && (
         <Card className="border-gaming-gold">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Trophy className="w-5 h-5 text-gaming-gold" />
-              Champion Deck - {topDeck.master.name}
+            Champion Deck - {selectedDeck.master.name}
+            <Badge className="ml-2">
+              #{selectedDeckIndex + 1} von 5
+            </Badge>
             </CardTitle>
           </CardHeader>
           
@@ -285,15 +267,15 @@ export function TestResultsPanel({
               <div className="space-y-2">
                 <h4 className="font-semibold">Master</h4>
                 <div className="p-3 bg-muted/30 rounded">
-                  <div className="font-medium">{topDeck.master.name}</div>
-                  <div className="text-sm text-muted-foreground">{topDeck.master.faction}</div>
+                  <div className="font-medium">{selectedDeck.master.name}</div>
+                  <div className="text-sm text-muted-foreground">{selectedDeck.master.faction}</div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {topDeck.master.health} HP
+                    {selectedDeck.master.health} HP
                   </div>
-                  {topDeck.master.perks && (
+                  {selectedDeck.master.perks && (
                     <div className="text-xs text-gaming-blue mt-1">
-                      {topDeck.master.perks.slice(0, 2).join(', ')}
-                      {topDeck.master.perks.length > 2 && '...'}
+                      {selectedDeck.master.perks.slice(0, 2).join(', ')}
+                      {selectedDeck.master.perks.length > 2 && '...'}
                     </div>
                   )}
                 </div>
@@ -304,19 +286,19 @@ export function TestResultsPanel({
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span>Win-Rate:</span>
-                    <span className="font-semibold text-gaming-gold">{Math.round(topWinRate)}%</span>
+                    <span className="font-semibold text-gaming-gold">{Math.round(selectedWinRate)}%</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Avg. Mana:</span>
-                    <span>{topDeck.averageCost.toFixed(1)}</span>
+                    <span>{selectedDeck.averageCost.toFixed(1)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Synergie:</span>
-                    <span>{Math.round(topDeck.strategySynergy)}%</span>
+                    <span>{Math.round(selectedDeck.strategySynergy)}%</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Gesamt Mana:</span>
-                    <span>{topDeck.totalCost}</span>
+                    <span>{selectedDeck.totalCost}</span>
                   </div>
                 </div>
               </div>
@@ -325,8 +307,8 @@ export function TestResultsPanel({
                 <h4 className="font-semibold">Mana-Kurve</h4>
                 <div className="grid grid-cols-3 gap-1 text-xs">
                   {[1,2,3,4,5].map(cost => {
-                    const count = topDeck.cards.filter(card => card.cost === cost).length;
-                    const percentage = Math.round((count / topDeck.cards.length) * 100);
+                    const count = selectedDeck.cards.filter(card => card.cost === cost).length;
+                    const percentage = Math.round((count / selectedDeck.cards.length) * 100);
                     return (
                       <div key={cost} className="text-center p-2 bg-muted/30 rounded">
                         <div className="font-semibold">{count}</div>
@@ -337,11 +319,11 @@ export function TestResultsPanel({
                   })}
                   <div className="text-center p-2 bg-muted/30 rounded">
                     <div className="font-semibold">
-                      {topDeck.cards.filter(card => card.cost >= 6).length}
+                      {selectedDeck.cards.filter(card => card.cost >= 6).length}
                     </div>
                     <div className="text-muted-foreground">6+M</div>
                     <div className="text-xs text-muted-foreground">
-                      {Math.round((topDeck.cards.filter(card => card.cost >= 6).length / topDeck.cards.length) * 100)}%
+                      {Math.round((selectedDeck.cards.filter(card => card.cost >= 6).length / selectedDeck.cards.length) * 100)}%
                     </div>
                   </div>
                 </div>
@@ -352,31 +334,32 @@ export function TestResultsPanel({
             <div className="space-y-3">
               <h4 className="font-semibold text-lg flex items-center gap-2">
                 <Sword className="w-5 h-5" />
-                Komplette Kartenliste ({topDeck.cards.length} Karten)
+                Komplette Kartenliste ({selectedDeck.cards.length} Karten)
               </h4>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {topDeck.cards
+                {selectedDeck.cards
                   .sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name))
                   .map((card, index) => (
-                  <div 
+                  <button
                     key={`${card.id}-${index}`} 
-                    className="relative p-3 bg-muted/20 rounded-lg border border-muted hover:bg-muted/40 transition-colors group"
+                    onClick={() => handleCardClick(card)}
+                    className="relative p-3 bg-muted/20 rounded-lg border border-muted hover:bg-muted/40 transition-all duration-200 group hover:scale-105 cursor-pointer"
                   >
                     <div className="flex items-start gap-3">
                       {/* Kartenbild */}
                       <div className="relative w-16 h-20 rounded-md overflow-hidden border border-muted bg-muted/10 flex-shrink-0">
-                        {card.image && (
+                        {card.image ? (
                           <img 
                             src={card.image} 
                             alt={card.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              e.currentTarget.style.display = 'none';
+                              const target = e.target as HTMLImageElement;
+                              target.src = `https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=600&fit=crop`;
                             }}
                           />
-                        )}
-                        {!card.image && (
+                        ) : (
                           <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
                             Karte
                           </div>
@@ -390,10 +373,15 @@ export function TestResultsPanel({
                         }`}>
                           {card.cost}
                         </div>
+                        
+                        {/* Hover-Overlay */}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Eye className="w-6 h-6 text-white" />
+                        </div>
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm text-foreground">{card.name}</div>
+                        <div className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors">{card.name}</div>
                         <div className="text-xs text-muted-foreground mt-1">
                           {card.type} • {card.faction} • {card.rarity}
                         </div>
@@ -439,7 +427,7 @@ export function TestResultsPanel({
                         )}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -449,13 +437,13 @@ export function TestResultsPanel({
               <div className="space-y-3">
                 <h4 className="font-semibold">Fraktions-Verteilung</h4>
                 <div className="space-y-2">
-                  {getFactionDistribution(topDeck.cards).map(faction => (
+                  {getFactionDistribution(selectedDeck.cards).map(faction => (
                     <div key={faction.name} className="flex items-center justify-between p-2 bg-muted/20 rounded">
                       <span className="text-sm font-medium">{faction.name}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{faction.count} Karten</span>
                         <Badge variant="outline" className="text-xs">
-                          {Math.round((faction.count / topDeck.cards.length) * 100)}%
+                          {Math.round((faction.count / selectedDeck.cards.length) * 100)}%
                         </Badge>
                       </div>
                     </div>
@@ -466,13 +454,13 @@ export function TestResultsPanel({
               <div className="space-y-3">
                 <h4 className="font-semibold">Karten-Typen</h4>
                 <div className="space-y-2">
-                  {getTypeDistribution(topDeck.cards).map(type => (
+                  {getTypeDistribution(selectedDeck.cards).map(type => (
                     <div key={type.name} className="flex items-center justify-between p-2 bg-muted/20 rounded">
                       <span className="text-sm font-medium">{type.name}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{type.count} Karten</span>
                         <Badge variant="outline" className="text-xs">
-                          {Math.round((type.count / topDeck.cards.length) * 100)}%
+                          {Math.round((type.count / selectedDeck.cards.length) * 100)}%
                         </Badge>
                       </div>
                     </div>
