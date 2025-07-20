@@ -498,6 +498,30 @@ export const CARDS: Card[] = [
 ];
 
 // Dynamische Kartengenerierung - kombiniert statische und Wiki-Karten
+export async function loadAllCards(): Promise<Card[]> {
+  try {
+    // Lade bis zu 300 Karten von der Wiki
+    const wikiCards = await WikiCardLoader.loadRandomCards(300);
+    const convertedCards = wikiCards.map(card => WikiCardLoader.wikiToInternalCard(card));
+    
+    console.log(`${wikiCards.length} Karten von Wiki geladen`);
+    
+    // Kombiniere mit statischen Karten (entferne Duplikate)
+    const staticCardIds = new Set(CARDS.map(card => card.id));
+    const uniqueWikiCards = convertedCards.filter(card => !staticCardIds.has(card.id));
+    
+    return [...CARDS, ...uniqueWikiCards];
+  } catch (error) {
+    console.error('Fehler beim Laden der Wiki-Karten:', error);
+    return CARDS;
+  }
+}
+
+// Funktion für erweiterte Kartendatenbank
+export async function getExtendedCardDatabase(maxCards: number = 50): Promise<Card[]> {
+  const allCards = await loadAllCards();
+  return allCards.slice(0, maxCards);
+}
 export async function getAllAvailableCards(): Promise<Card[]> {
   try {
     // Lade zusätzliche Karten von der Wiki

@@ -1,4 +1,4 @@
-import { Card, Master, CARDS, MASTERS } from '@/data/cards';
+import { Card, Master, CARDS, MASTERS, loadAllCards, getExtendedCardDatabase } from '@/data/cards';
 
 export interface Deck {
   id: string;
@@ -37,11 +37,31 @@ export interface TestResults {
 export class DeckGenerator {
   private readonly DECK_SIZE = 10;
   private readonly MAX_SAME_CARD = 1; // Singleton format
+  
+  // Dynamische Kartendatenbank
+  private availableCards: Card[] = CARDS;
+  
+  // Lade erweiterte Kartendatenbank
+  async loadExtendedCardPool(maxCards: number = 100): Promise<void> {
+    try {
+      this.availableCards = await getExtendedCardDatabase(maxCards);
+      console.log(`Erweiterte Kartendatenbank geladen: ${this.availableCards.length} Karten verfügbar`);
+    } catch (error) {
+      console.error('Fehler beim Laden der erweiterten Kartendatenbank:', error);
+      this.availableCards = CARDS; // Fallback
+    }
+  }
 
-  generateAllCombinations(
+  async generateAllCombinations(
     maxDecks: number = 1000,
-    strategy?: string
-  ): Deck[] {
+    strategy?: string,
+    maxCards: number = 50
+  ): Promise<Deck[]> {
+    // Lade erweiterte Karten wenn gewünscht
+    if (maxCards > CARDS.length) {
+      await this.loadExtendedCardPool(maxCards);
+    }
+    
     const decks: Deck[] = [];
     let deckId = 0;
 
@@ -89,7 +109,7 @@ export class DeckGenerator {
   }
 
   private getFilteredCards(master: Master, strategy?: string): Card[] {
-    let cards = [...CARDS];
+    let cards = [...this.availableCards];
 
     // Bevorzuge Karten der gleichen Fraktion
     cards = cards.sort((a, b) => {

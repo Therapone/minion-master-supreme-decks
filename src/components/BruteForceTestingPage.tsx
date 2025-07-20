@@ -28,9 +28,10 @@ export function BruteForceTestingPage() {
       // Generiere Decks für alle ausgewählten Strategien
       const allDecks = [];
       for (const strategy of config.strategies) {
-        const strategyDecks = deckGenerator.generateAllCombinations(
+        const strategyDecks = await deckGenerator.generateAllCombinations(
           Math.floor(config.maxDecks / config.strategies.length),
-          strategy
+          strategy,
+          config.maxCards || 50
         );
         allDecks.push(...strategyDecks);
       }

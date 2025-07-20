@@ -7,6 +7,8 @@ export interface TestConfiguration {
   strategies: string[];
   minWinRate: number;
   testDepth: 'QUICK' | 'NORMAL' | 'EXTENSIVE';
+  useExtendedCardPool?: boolean;
+  maxCards?: number;
 }
 
 export class DeckTester {
