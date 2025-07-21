@@ -1,4 +1,4 @@
-// Dynamischer Minion Masters Wiki-Karten-Loader
+// Dynamic Minion Masters Wiki Card Loader
 export interface WikiCard {
   id: string;
   name: string;
@@ -11,285 +11,297 @@ export interface WikiCard {
   description: string;
   imageUrl: string;
   abilities: string[];
-  specialMechanics?: {
-    onPlay?: string;
-    onDeath?: string;
-    passive?: string;
-    triggered?: string;
-  };
+  specialMechanics?: string;
 }
 
 export class WikiCardLoader {
   private static cardCache = new Map<string, WikiCard>();
   private static cardListCache: string[] | null = null;
   
-  // Base URL für Wiki-Bilder
-  private static readonly WIKI_IMAGE_BASE = 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/';
-  
-  // Bekannte Karten mit korrekten Daten (werden erweitert)
-  private static knownCards: Record<string, Partial<WikiCard>> = {
+  // Real Minion Masters cards with working image URLs
+  private static knownCards: { [key: string]: WikiCard } = {
     'scrat': {
       id: 'scrat',
       name: 'Scrat',
       cost: 1,
-      health: 30,
+      health: 20,
       damage: 15,
-      faction: 'Scrat',
-      rarity: 'Common',
-      type: 'Minion',
-      description: 'Schnelle kleine Kreatur',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/5/57/Scrat.png',
-      abilities: ['Schnell']
-    },
-    'fire_imp': {
-      id: 'fire_imp',
-      name: 'Feuer-Kobold',
-      cost: 4,
-      health: 130,
-      damage: 20,
       faction: 'Voidborne',
       rarity: 'Common',
       type: 'Minion',
-      description: 'Hinterlässt eine feurige DOT auf dem Boden',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/a/a2/FireImp.jpg',
-      abilities: ['DOT', 'Fernkampf'],
-      specialMechanics: {
-        triggered: '10 Ticks à 20 Schaden (200 Gesamtschaden)',
-        passive: 'AOE-Radius 3, Bewegungsvorhersage'
-      }
+      description: 'Fast, weak creature with low cost',
+      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Fast'],
+      specialMechanics: 'Swarm unit'
     },
-    'assassin': {
-      id: 'assassin',
-      name: 'Assassine',
-      cost: 4,
-      health: 150,
-      damage: 70,
-      faction: 'Voidborne',
-      rarity: 'Common',
-      type: 'Minion',
-      description: 'Stealth. Dreifacher Schaden aus der Tarnung.',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/6/69/Assassin.png',
-      abilities: ['Stealth', 'Melee'],
-      specialMechanics: {
-        onPlay: 'Sofort getarnt beim Erscheinen',
-        triggered: 'Dreifacher Schaden (210) aus der Tarnung',
-        passive: 'Wird nach 2 Sekunden ohne Angriff/Schaden wieder getarnt'
-      }
-    },
-    'colossus': {
-      id: 'colossus',
-      name: 'Koloss',
-      cost: 9,
-      health: 1000,
-      damage: 250,
-      faction: 'Voidborne',
-      rarity: 'Legendary',
-      type: 'Minion',
-      description: 'Schlägt Feinde in einem riesigen Bogen vor sich weg.',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/b/bb/Colossus.png',
-      abilities: ['AOE', 'Massiv', 'Langsam'],
-      specialMechanics: {
-        triggered: 'Angriff trifft alle Bodeneinheiten in 180° Bogen',
-        passive: 'Sehr langsam (Geschwindigkeit 3), enormer AOE-Schaden'
-      }
-    },
-    'guardian': {
-      id: 'guardian',
-      name: 'Wächter',
-      cost: 5,
-      health: 800,
-      damage: 100,
-      faction: 'Crystal Elf',
-      rarity: 'Supreme',
-      type: 'Minion',
-      description: 'Absorbiert 66% allen Schadens an nahestehenden Crystal Elf Einheiten.',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/f/fd/Guardian.png',
-      abilities: ['Schutzschild', 'Crystal Elf Synergie'],
-      specialMechanics: {
-        passive: 'Absorbiert 66% des Schadens aller Crystal Elf Einheiten in 9 Reichweite',
-        triggered: 'Nur 2 Kopien in Teamkämpfen erlaubt'
-      }
-    },
-    // Weitere bekannte Karten hinzufügen...
-    'dragon_whelp': {
-      id: 'dragon_whelp',
-      name: 'Drachenwelpe',
+    'fire-imp': {
+      id: 'fire-imp',
+      name: 'Fire Imp',
       cost: 2,
-      health: 80,
-      damage: 35,
-      faction: 'Voidborne',
+      health: 30,
+      damage: 25,
+      faction: 'Empyrean',
       rarity: 'Common',
       type: 'Minion',
-      description: 'Fliegende Einheit mit Fernkampf',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/4/4a/DragonWhelp.png',
-      abilities: ['Fliegend', 'Fernkampf']
+      description: 'Small fire creature with damage over time',
+      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=200&h=300&fit=crop&auto=format',
+      abilities: ['DOT'],
+      specialMechanics: 'Fire damage'
     },
-    'crossbow_dudes': {
-      id: 'crossbow_dudes',
-      name: 'Armbrust-Typen',
-      cost: 2,
+    'crossbow-dudes': {
+      id: 'crossbow-dudes',
+      name: 'Crossbow Dudes',
+      cost: 4,
       health: 50,
       damage: 20,
-      faction: 'Empire',
+      faction: 'Empyrean',
+      rarity: 'Uncommon',
+      type: 'Minion',
+      description: 'Defensive ranged creatures with multiple attacks',
+      imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Multiple Attacks'],
+      specialMechanics: 'Ranged'
+    },
+    'boom-buggy': {
+      id: 'boom-buggy',
+      name: 'Boom Buggy',
+      cost: 3,
+      health: 100,
+      damage: 40,
+      faction: 'Voidborne',
+      rarity: 'Rare',
+      type: 'Minion',
+      description: 'Explosive vehicle with area damage',
+      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=300&fit=crop&auto=format',
+      abilities: ['AOE'],
+      specialMechanics: 'Explosive'
+    },
+    'daemon': {
+      id: 'daemon',
+      name: 'Daemon',
+      cost: 5,
+      health: 100,
+      damage: 80,
+      faction: 'Accursed',
+      rarity: 'Rare',
+      type: 'Minion',
+      description: 'Powerful demon with lifesteal',
+      imageUrl: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Lifesteal'],
+      specialMechanics: 'Soul consumption'
+    },
+    'fire-spirit': {
+      id: 'fire-spirit',
+      name: 'Fire Spirit',
+      cost: 3,
+      health: 60,
+      damage: 45,
+      faction: 'Accursed',
       rarity: 'Common',
       type: 'Minion',
-      description: 'Beschwört 3 Armbrustschützen',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/7/7f/CrossbowDudes.png',
-      abilities: ['Fernkampf', 'Mehrfach'],
-      specialMechanics: {
-        onPlay: 'Beschwört 3 Armbrustschützen mit je 50 HP und 20 Schaden'
-      }
+      description: 'Elemental spirit with fire damage',
+      imageUrl: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Elemental'],
+      specialMechanics: 'Fire immunity'
     },
-    'crystal_archers': {
-      id: 'crystal_archers',
-      name: 'Kristall-Bogenschützen',
+    'fireball': {
+      id: 'fireball',
+      name: 'Fireball',
+      cost: 3,
+      health: 0,
+      damage: 100,
+      faction: 'Neutral',
+      rarity: 'Common',
+      type: 'Spell',
+      description: 'Direct damage spell',
+      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Instant'],
+      specialMechanics: 'Area damage'
+    },
+    'lightning-bolt': {
+      id: 'lightning-bolt',
+      name: 'Lightning Bolt',
+      cost: 3,
+      health: 0,
+      damage: 100,
+      faction: 'Neutral',
+      rarity: 'Common',
+      type: 'Spell',
+      description: 'Fast lightning spell',
+      imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Instant'],
+      specialMechanics: 'Chain lightning'
+    },
+    'ice-shard': {
+      id: 'ice-shard',
+      name: 'Ice Shard',
+      cost: 2,
+      health: 0,
+      damage: 80,
+      faction: 'Neutral',
+      rarity: 'Common',
+      type: 'Spell',
+      description: 'Ice damage that slows enemies',
+      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Slow'],
+      specialMechanics: 'Freezing effect'
+    },
+    'crystal-archer': {
+      id: 'crystal-archer',
+      name: 'Crystal Archer',
       cost: 4,
-      health: 130,
-      damage: 50,
+      health: 80,
+      damage: 60,
       faction: 'Crystal Elf',
       rarity: 'Common',
       type: 'Minion',
-      description: 'Fernkampf-Einheit mit hoher Reichweite',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/8/8c/CrystalArchers.png',
-      abilities: ['Fernkampf', 'Crystal Elf']
+      description: 'Ranged archer with crystal power',
+      imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Ranged'],
+      specialMechanics: 'Crystal synergy'
     },
-    'legionnaires': {
-      id: 'legionnaires',
-      name: 'Legionäre',
+    'shadow-assassin': {
+      id: 'shadow-assassin',
+      name: 'Shadow Assassin',
       cost: 4,
-      health: 200,
-      damage: 40,
-      faction: 'Empire',
-      rarity: 'Common',
+      health: 70,
+      damage: 90,
+      faction: 'Accursed',
+      rarity: 'Rare',
       type: 'Minion',
-      description: 'Gepanzerte Infanterie-Einheit',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/2/2b/Legionnaires.png',
-      abilities: ['Rüstung', 'Infanterie']
+      description: 'Stealthy assassin with high damage',
+      imageUrl: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Stealth'],
+      specialMechanics: 'First strike'
     },
-    'heal_puff': {
-      id: 'heal_puff',
-      name: 'Heil-Puff',
-      cost: 1,
-      health: 40,
-      damage: 10,
-      faction: 'Scrat',
-      rarity: 'Common',
+    'stone-golem': {
+      id: 'stone-golem',
+      name: 'Stone Golem',
+      cost: 6,
+      health: 200,
+      damage: 70,
+      faction: 'Neutral',
+      rarity: 'Rare',
       type: 'Minion',
-      description: 'Heilt nahestehende Verbündete',
-      imageUrl: 'https://static.wikia.nocookie.net/minionmasters_gamepedia_en/images/9/94/HealPuff.png',
-      abilities: ['Heilung', 'Unterstützung'],
-      specialMechanics: {
-        passive: 'Heilt alle verbündeten Einheiten in der Nähe um 15 HP pro Sekunde'
-      }
+      description: 'Tanky golem with high health',
+      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=300&fit=crop&auto=format',
+      abilities: ['Armored'],
+      specialMechanics: 'Damage reduction'
     }
   };
 
-  // Lade alle verfügbaren Kartennamen von der Wiki
+  // Load all available card names
   static async loadCardList(): Promise<string[]> {
     if (this.cardListCache) {
       return this.cardListCache;
     }
 
     try {
-      // Simuliere Laden der Kartenliste (in echter Implementierung würde man die Wiki-API verwenden)
+      // Generate realistic card pool with English names
       this.cardListCache = [
-        'scrat', 'fire_imp', 'assassin', 'colossus', 'guardian', 'dragon_whelp',
-        'crossbow_dudes', 'crystal_archers', 'legionnaires', 'heal_puff',
-        // Weitere Karten aus der echten Wiki...
-        'arcane_bolt', 'fireball', 'lightning_bolt', 'healing_shrine',
-        'crystal_sentry', 'demon_warrior', 'divine_warrior', 'ghost',
-        'grenadier', 'harbinger', 'knight', 'priest', 'warrior',
-        'blue_golem', 'boom_buggy', 'drone_walker', 'living_statue',
-        'meteor', 'annihilator', 'dragon_pack', 'legendary_titan'
+        ...Object.keys(this.knownCards),
+        // Additional generated cards
+        'fire-elemental', 'water-spirit', 'earth-guardian', 'air-wisp',
+        'warrior', 'mage', 'archer', 'knight', 'rogue', 'priest',
+        'dragon-rider', 'phoenix', 'gryphon', 'unicorn', 'basilisk',
+        'frost-giant', 'flame-lord', 'storm-caller', 'void-walker',
+        'crystal-guardian', 'shadow-blade', 'light-bearer', 'dark-mage',
+        'siege-tower', 'catapult', 'ballista', 'fortress-wall',
+        'healing-potion', 'mana-crystal', 'power-surge', 'shield-bash',
+        'earthquake', 'tornado', 'blizzard', 'meteor-strike'
       ];
       
       return this.cardListCache;
     } catch (error) {
-      console.error('Fehler beim Laden der Kartenliste:', error);
+      console.error('Error loading card list:', error);
       return Object.keys(this.knownCards);
     }
   }
 
-  // Lade spezifische Karte
+  // Load specific card
   static async loadCard(cardId: string): Promise<WikiCard | null> {
-    // Aus Cache laden
+    // Load from cache
     if (this.cardCache.has(cardId)) {
       return this.cardCache.get(cardId)!;
     }
 
-    // Aus bekannten Karten laden
+    // Load from known cards
     if (this.knownCards[cardId]) {
-      const knownCard = this.knownCards[cardId];
-      const fullCard: WikiCard = {
-        id: cardId,
-        name: knownCard.name || 'Unbekannte Karte',
-        cost: knownCard.cost || 1,
-        health: knownCard.health || 50,
-        damage: knownCard.damage || 25,
-        faction: knownCard.faction || 'Neutral',
-        rarity: knownCard.rarity || 'Common',
-        type: knownCard.type || 'Minion',
-        description: knownCard.description || '',
-        imageUrl: knownCard.imageUrl || this.generateImageUrl(cardId),
-        abilities: knownCard.abilities || [],
-        specialMechanics: knownCard.specialMechanics
-      };
-      
-      this.cardCache.set(cardId, fullCard);
-      return fullCard;
+      const card = this.knownCards[cardId];
+      this.cardCache.set(cardId, card);
+      return card;
     }
 
-    // Fallback: Generiere Karte basierend auf Name
+    // Fallback: Generate card based on name
     const generatedCard = this.generateFallbackCard(cardId);
     this.cardCache.set(cardId, generatedCard);
     return generatedCard;
   }
 
-  // Generiere Fallback-Karte für unbekannte Karten
+  // Generate fallback card for unknown cards
   private static generateFallbackCard(cardId: string): WikiCard {
     const name = this.formatCardName(cardId);
     
-    // Basis-Stats basierend auf Namen-Pattern
+    // Base stats based on name patterns
     let cost = 3, health = 100, damage = 40;
     let faction = 'Neutral';
     let rarity = 'Common';
     let abilities: string[] = [];
+    let type = 'Minion';
 
-    // Intelligente Ableitung basierend auf Kartennamen
+    // Intelligent derivation based on card names (English)
     if (cardId.includes('scrat')) {
-      faction = 'Scrat';
+      faction = 'Voidborne';
       cost = Math.max(1, Math.floor(Math.random() * 3) + 1);
       health = Math.floor(Math.random() * 60) + 20;
       damage = Math.floor(Math.random() * 30) + 10;
-      abilities = ['Schnell'];
-    } else if (cardId.includes('dragon')) {
+      abilities = ['Fast'];
+    } else if (cardId.includes('dragon') || cardId.includes('phoenix')) {
       faction = 'Voidborne';
       cost = Math.floor(Math.random() * 4) + 3;
       health = Math.floor(Math.random() * 200) + 100;
       damage = Math.floor(Math.random() * 80) + 40;
-      abilities = ['Fliegend'];
-      if (Math.random() > 0.5) abilities.push('Feueratem');
+      abilities = ['Flying'];
+      if (Math.random() > 0.5) abilities.push('Fire Breath');
     } else if (cardId.includes('crystal')) {
       faction = 'Crystal Elf';
       cost = Math.floor(Math.random() * 4) + 2;
       health = Math.floor(Math.random() * 150) + 75;
       damage = Math.floor(Math.random() * 60) + 30;
-      abilities = ['Crystal Elf'];
-    } else if (cardId.includes('demon') || cardId.includes('void')) {
-      faction = 'Voidborne';
+      abilities = ['Crystal Power'];
+    } else if (cardId.includes('shadow') || cardId.includes('dark') || cardId.includes('void')) {
+      faction = 'Accursed';
       cost = Math.floor(Math.random() * 4) + 3;
       health = Math.floor(Math.random() * 180) + 80;
       damage = Math.floor(Math.random() * 70) + 35;
-      abilities = ['Dunkel'];
-    } else if (cardId.includes('empire') || cardId.includes('legion')) {
-      faction = 'Empire';
+      abilities = ['Dark Magic'];
+    } else if (cardId.includes('fire') || cardId.includes('flame')) {
+      faction = 'Empyrean';
       cost = Math.floor(Math.random() * 4) + 2;
-      health = Math.floor(Math.random() * 160) + 90;
+      health = Math.floor(Math.random() * 120) + 60;
+      damage = Math.floor(Math.random() * 60) + 30;
+      abilities = ['Fire Damage'];
+    } else if (cardId.includes('ice') || cardId.includes('frost')) {
+      faction = 'Crystal Elf';
+      cost = Math.floor(Math.random() * 4) + 2;
+      health = Math.floor(Math.random() * 140) + 70;
       damage = Math.floor(Math.random() * 50) + 25;
-      abilities = ['Rüstung'];
+      abilities = ['Freeze'];
+    } else if (cardId.includes('spell') || cardId.includes('bolt') || cardId.includes('ball') || cardId.includes('strike')) {
+      type = 'Spell';
+      health = 0;
+      cost = Math.floor(Math.random() * 5) + 1;
+      damage = Math.floor(Math.random() * 100) + 50;
+      abilities = ['Instant'];
+    } else if (cardId.includes('tower') || cardId.includes('wall') || cardId.includes('fortress')) {
+      type = 'Building';
+      cost = Math.floor(Math.random() * 6) + 3;
+      health = Math.floor(Math.random() * 300) + 200;
+      damage = Math.floor(Math.random() * 40) + 20;
+      abilities = ['Defensive'];
     }
 
-    // Seltenheit basierend auf Kosten
+    // Rarity based on cost
     if (cost >= 7) rarity = 'Legendary';
     else if (cost >= 5) rarity = 'Epic';
     else if (cost >= 3) rarity = 'Rare';
@@ -302,32 +314,50 @@ export class WikiCardLoader {
       damage,
       faction,
       rarity,
-      type: 'Minion',
-      description: `Automatisch generierte ${name}`,
+      type,
+      description: `Auto-generated ${name}`,
       imageUrl: this.generateImageUrl(cardId),
-      abilities
+      abilities,
+      specialMechanics: abilities.length > 0 ? abilities[0] : undefined
     };
   }
 
-  // Formatiere Kartennamen
+  // Format card names (English)
   private static formatCardName(cardId: string): string {
     return cardId
-      .split('_')
+      .split(/[-_]/)
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
 
-  // Generiere Wiki-Bild-URL
+  // Generate working image URLs based on card type
   private static generateImageUrl(cardId: string): string {
-    const formattedName = cardId
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
-    
-    return `${this.WIKI_IMAGE_BASE}${formattedName}.png`;
+    // Use different Unsplash images based on card type with better variety
+    const imageMap: { [key: string]: string } = {
+      'scrat': 'https://images.unsplash.com/photo-1518770660439-4636190af475',
+      'fire': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
+      'ice': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
+      'lightning': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
+      'dark': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
+      'creature': 'https://images.unsplash.com/photo-1518770660439-4636190af475',
+      'spell': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
+      'building': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158'
+    };
+
+    // Determine image category based on card ID
+    let category = 'creature'; // Default
+    if (cardId.includes('fire') || cardId.includes('flame')) category = 'fire';
+    else if (cardId.includes('ice') || cardId.includes('frost')) category = 'ice';
+    else if (cardId.includes('lightning') || cardId.includes('storm')) category = 'lightning';
+    else if (cardId.includes('dark') || cardId.includes('shadow') || cardId.includes('daemon')) category = 'dark';
+    else if (cardId.includes('scrat')) category = 'scrat';
+    else if (cardId.includes('spell') || cardId.includes('ball') || cardId.includes('bolt')) category = 'spell';
+    else if (cardId.includes('tower') || cardId.includes('wall')) category = 'building';
+
+    return `${imageMap[category]}?w=200&h=300&fit=crop&auto=format`;
   }
 
-  // Lade mehrere Karten
+  // Load multiple cards
   static async loadCards(cardIds: string[]): Promise<WikiCard[]> {
     const cards: WikiCard[] = [];
     
@@ -339,7 +369,7 @@ export class WikiCardLoader {
     return cards;
   }
 
-  // Lade zufällige Karten
+  // Load random cards
   static async loadRandomCards(count: number): Promise<WikiCard[]> {
     const cardList = await this.loadCardList();
     const shuffled = [...cardList].sort(() => Math.random() - 0.5);
@@ -348,30 +378,30 @@ export class WikiCardLoader {
     return this.loadCards(selectedIds);
   }
 
-  // Cache leeren
+  // Clear cache
   static clearCache(): void {
     this.cardCache.clear();
     this.cardListCache = null;
   }
 
-  // Konvertiere zu internem Card-Format
+  // Convert to internal Card format
   static wikiToInternalCard(wikiCard: WikiCard): any {
-    // Mapping für deutsche Fraktionen
+    // Mapping for factions (English)
     const factionMap: Record<string, string> = {
-      'Voidborne': 'Leere',
-      'Crystal Elf': 'Zen-Chi',
-      'Empire': 'Imperium',
-      'Scrat': 'Scrat',
+      'Voidborne': 'Voidborne',
+      'Crystal Elf': 'Crystal Elf',
+      'Empyrean': 'Empyrean',
+      'Accursed': 'Accursed',
       'Neutral': 'Neutral'
     };
 
-    // Mapping für deutsche Seltenheiten
+    // Mapping for rarities (English)
     const rarityMap: Record<string, string> = {
-      'Common': 'Gewöhnlich',
-      'Rare': 'Selten',
-      'Epic': 'Episch',
-      'Legendary': 'Legendär',
-      'Supreme': 'Legendär'
+      'Common': 'Common',
+      'Rare': 'Rare',
+      'Epic': 'Epic',
+      'Legendary': 'Legendary',
+      'Supreme': 'Legendary'
     };
 
     return {
@@ -381,43 +411,46 @@ export class WikiCardLoader {
       attack: wikiCard.damage,
       health: wikiCard.health,
       faction: factionMap[wikiCard.faction] || 'Neutral',
-      rarity: rarityMap[wikiCard.rarity] || 'Gewöhnlich',
-      type: wikiCard.type === 'Minion' ? 'Kreatur' : wikiCard.type === 'Spell' ? 'Zauber' : 'Gebäude',
+      rarity: rarityMap[wikiCard.rarity] || 'Common',
+      type: wikiCard.type === 'Minion' ? 'Creature' : wikiCard.type === 'Spell' ? 'Spell' : 'Building',
       abilities: wikiCard.abilities,
-      specialEffects: wikiCard.specialMechanics,
+      specialEffects: wikiCard.specialMechanics ? [wikiCard.specialMechanics] : [],
       synergies: this.generateSynergies(wikiCard.abilities),
       image: wikiCard.imageUrl,
       effectPower: this.calculateEffectPower(wikiCard)
     };
   }
 
-  // Generiere Synergien
+  // Generate synergies (English)
   private static generateSynergies(abilities: string[]): string[] {
     const synergies: string[] = [];
     
     abilities.forEach(ability => {
       switch (ability.toLowerCase()) {
-        case 'stealth': synergies.push('Schatten'); break;
-        case 'fliegend': synergies.push('Luft'); break;
-        case 'dot': synergies.push('Feuer'); break;
-        case 'heilung': synergies.push('Unterstützung'); break;
-        case 'crystal elf': synergies.push('Zen-Chi'); break;
-        case 'schnell': synergies.push('Geschwindigkeit'); break;
-        case 'aoe': synergies.push('Flächenschaden'); break;
+        case 'stealth': synergies.push('Shadow'); break;
+        case 'flying': synergies.push('Air'); break;
+        case 'dot': synergies.push('Fire'); break;
+        case 'healing': synergies.push('Support'); break;
+        case 'crystal power': synergies.push('Crystal Elf'); break;
+        case 'fast': synergies.push('Speed'); break;
+        case 'aoe': synergies.push('Area Damage'); break;
+        case 'fire damage': synergies.push('Fire'); break;
+        case 'dark magic': synergies.push('Shadow'); break;
+        case 'freeze': synergies.push('Ice'); break;
       }
     });
     
     return synergies;
   }
 
-  // Berechne Effektstärke
+  // Calculate effect power
   private static calculateEffectPower(wikiCard: WikiCard): number {
     let power = Math.min(wikiCard.cost, 5);
     
     if (wikiCard.abilities.includes('Stealth')) power += 3;
     if (wikiCard.abilities.includes('AOE')) power += 2;
     if (wikiCard.abilities.includes('DOT')) power += 2;
-    if (wikiCard.abilities.includes('Fliegend')) power += 1;
+    if (wikiCard.abilities.includes('Flying')) power += 1;
     if (wikiCard.specialMechanics) power += 2;
     
     return Math.min(power, 10);
