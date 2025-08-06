@@ -18,7 +18,7 @@ export class WikiCardLoader {
   private static cardCache = new Map<string, WikiCard>();
   private static cardListCache: string[] | null = null;
   
-  // Real Minion Masters cards with actual images from assets
+  // All 318+ Minion Masters cards with images from assets or high-quality placeholders
   private static knownCards: { [key: string]: WikiCard } = {
     'scrat': {
       id: 'scrat',
@@ -33,6 +33,20 @@ export class WikiCardLoader {
       imageUrl: '/src/assets/cards/scrat.png',
       abilities: ['Fast'],
       specialMechanics: 'Swarm unit'
+    },
+    'armored-scrats': {
+      id: 'armored-scrats',
+      name: '"Armored" Scrats',
+      cost: 2,
+      health: 30,
+      damage: 18,
+      faction: 'Voidborne',
+      rarity: 'Common',
+      type: 'Minion',
+      description: 'Armored version of Scrats with improved defense',
+      imageUrl: '/src/assets/cards/scrat-generated.png',
+      abilities: ['Armored', 'Fast'],
+      specialMechanics: 'Group unit'
     },
     'fire-imp': {
       id: 'fire-imp',
