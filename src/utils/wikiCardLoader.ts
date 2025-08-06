@@ -18,7 +18,7 @@ export class WikiCardLoader {
   private static cardCache = new Map<string, WikiCard>();
   private static cardListCache: string[] | null = null;
   
-  // Real Minion Masters cards with working image URLs
+  // Real Minion Masters cards with thematic placeholder images
   private static knownCards: { [key: string]: WikiCard } = {
     'scrat': {
       id: 'scrat',
@@ -30,7 +30,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Minion',
       description: 'Fast, weak creature with low cost',
-      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/8B5CF6/FFFFFF?text=Scrat',
       abilities: ['Fast'],
       specialMechanics: 'Swarm unit'
     },
@@ -44,7 +44,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Minion',
       description: 'Small fire creature with damage over time',
-      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/DC2626/FFFFFF?text=Fire+Imp',
       abilities: ['DOT'],
       specialMechanics: 'Fire damage'
     },
@@ -58,7 +58,7 @@ export class WikiCardLoader {
       rarity: 'Uncommon',
       type: 'Minion',
       description: 'Defensive ranged creatures with multiple attacks',
-      imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/059669/FFFFFF?text=Crossbow+Dudes',
       abilities: ['Multiple Attacks'],
       specialMechanics: 'Ranged'
     },
@@ -72,7 +72,7 @@ export class WikiCardLoader {
       rarity: 'Rare',
       type: 'Minion',
       description: 'Explosive vehicle with area damage',
-      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/F59E0B/FFFFFF?text=Boom+Buggy',
       abilities: ['AOE'],
       specialMechanics: 'Explosive'
     },
@@ -86,7 +86,7 @@ export class WikiCardLoader {
       rarity: 'Rare',
       type: 'Minion',
       description: 'Powerful demon with lifesteal',
-      imageUrl: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/7C2D12/FFFFFF?text=Daemon',
       abilities: ['Lifesteal'],
       specialMechanics: 'Soul consumption'
     },
@@ -100,7 +100,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Minion',
       description: 'Elemental spirit with fire damage',
-      imageUrl: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/EA580C/FFFFFF?text=Fire+Spirit',
       abilities: ['Elemental'],
       specialMechanics: 'Fire immunity'
     },
@@ -114,7 +114,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Spell',
       description: 'Direct damage spell',
-      imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/DC2626/FFFFFF?text=Fireball',
       abilities: ['Instant'],
       specialMechanics: 'Area damage'
     },
@@ -128,7 +128,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Spell',
       description: 'Fast lightning spell',
-      imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/3B82F6/FFFFFF?text=Lightning+Bolt',
       abilities: ['Instant'],
       specialMechanics: 'Chain lightning'
     },
@@ -142,7 +142,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Spell',
       description: 'Ice damage that slows enemies',
-      imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/06B6D4/FFFFFF?text=Ice+Shard',
       abilities: ['Slow'],
       specialMechanics: 'Freezing effect'
     },
@@ -156,7 +156,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Minion',
       description: 'Ranged archer with crystal power',
-      imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/10B981/FFFFFF?text=Crystal+Archer',
       abilities: ['Ranged'],
       specialMechanics: 'Crystal synergy'
     },
@@ -170,7 +170,7 @@ export class WikiCardLoader {
       rarity: 'Rare',
       type: 'Minion',
       description: 'Stealthy assassin with high damage',
-      imageUrl: 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/374151/FFFFFF?text=Shadow+Assassin',
       abilities: ['Stealth'],
       specialMechanics: 'First strike'
     },
@@ -184,7 +184,7 @@ export class WikiCardLoader {
       rarity: 'Rare',
       type: 'Minion',
       description: 'Tanky golem with high health',
-      imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=200&h=300&fit=crop&auto=format',
+      imageUrl: 'https://via.placeholder.com/200x300/78716C/FFFFFF?text=Stone+Golem',
       abilities: ['Armored'],
       specialMechanics: 'Damage reduction'
     }
@@ -316,7 +316,7 @@ export class WikiCardLoader {
       rarity,
       type,
       description: `Auto-generated ${name}`,
-      imageUrl: this.generateImageUrl(cardId),
+      imageUrl: this.generateImageUrl(cardId, name),
       abilities,
       specialMechanics: abilities.length > 0 ? abilities[0] : undefined
     };
@@ -330,31 +330,55 @@ export class WikiCardLoader {
       .join(' ');
   }
 
-  // Generate working image URLs based on card type
-  private static generateImageUrl(cardId: string): string {
-    // Use different Unsplash images based on card type with better variety
-    const imageMap: { [key: string]: string } = {
-      'scrat': 'https://images.unsplash.com/photo-1518770660439-4636190af475',
-      'fire': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
-      'ice': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158',
-      'lightning': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
-      'dark': 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7',
-      'creature': 'https://images.unsplash.com/photo-1518770660439-4636190af475',
-      'spell': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5',
-      'building': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158'
+  // Generate themed placeholder images based on card type and name
+  private static generateImageUrl(cardId: string, cardName: string): string {
+    const colors = {
+      'fire': 'DC2626', // Red
+      'ice': '06B6D4', // Cyan
+      'lightning': '3B82F6', // Blue
+      'shadow': '374151', // Gray
+      'crystal': '10B981', // Emerald
+      'dragon': '7C2D12', // Orange-red
+      'scrat': '8B5CF6', // Purple
+      'warrior': '059669', // Green
+      'mage': '7C3AED', // Violet
+      'priest': 'F59E0B', // Amber
+      'spell': 'EC4899', // Pink
+      'building': '78716C', // Stone
+      'creature': '6366F1' // Indigo
     };
 
-    // Determine image category based on card ID
-    let category = 'creature'; // Default
-    if (cardId.includes('fire') || cardId.includes('flame')) category = 'fire';
-    else if (cardId.includes('ice') || cardId.includes('frost')) category = 'ice';
-    else if (cardId.includes('lightning') || cardId.includes('storm')) category = 'lightning';
-    else if (cardId.includes('dark') || cardId.includes('shadow') || cardId.includes('daemon')) category = 'dark';
-    else if (cardId.includes('scrat')) category = 'scrat';
-    else if (cardId.includes('spell') || cardId.includes('ball') || cardId.includes('bolt')) category = 'spell';
-    else if (cardId.includes('tower') || cardId.includes('wall')) category = 'building';
+    let color = colors['creature']; // Default
+    let displayName = cardName;
 
-    return `${imageMap[category]}?w=200&h=300&fit=crop&auto=format`;
+    // Determine color and display name based on card ID/name
+    if (cardId.includes('fire') || cardId.includes('flame')) {
+      color = colors['fire'];
+    } else if (cardId.includes('ice') || cardId.includes('frost')) {
+      color = colors['ice'];
+    } else if (cardId.includes('lightning') || cardId.includes('storm')) {
+      color = colors['lightning'];
+    } else if (cardId.includes('shadow') || cardId.includes('dark')) {
+      color = colors['shadow'];
+    } else if (cardId.includes('crystal')) {
+      color = colors['crystal'];
+    } else if (cardId.includes('dragon') || cardId.includes('phoenix')) {
+      color = colors['dragon'];
+    } else if (cardId.includes('scrat')) {
+      color = colors['scrat'];
+    } else if (cardId.includes('warrior') || cardId.includes('knight')) {
+      color = colors['warrior'];
+    } else if (cardId.includes('mage') || cardId.includes('wizard')) {
+      color = colors['mage'];
+    } else if (cardId.includes('priest') || cardId.includes('healer')) {
+      color = colors['priest'];
+    } else if (cardId.includes('spell') || cardId.includes('bolt') || cardId.includes('ball')) {
+      color = colors['spell'];
+    } else if (cardId.includes('tower') || cardId.includes('wall') || cardId.includes('fortress')) {
+      color = colors['building'];
+    }
+
+    return `https://via.placeholder.com/200x300/${color}/FFFFFF?text=${encodeURIComponent(displayName)}`;
   }
 
   // Load multiple cards
