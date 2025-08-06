@@ -18,7 +18,7 @@ export class WikiCardLoader {
   private static cardCache = new Map<string, WikiCard>();
   private static cardListCache: string[] | null = null;
   
-  // Real Minion Masters cards with thematic placeholder images
+  // Real Minion Masters cards with actual images from assets
   private static knownCards: { [key: string]: WikiCard } = {
     'scrat': {
       id: 'scrat',
@@ -30,7 +30,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Minion',
       description: 'Fast, weak creature with low cost',
-      imageUrl: 'https://via.placeholder.com/200x300/8B5CF6/FFFFFF?text=Scrat',
+      imageUrl: '/src/assets/cards/scrat.png',
       abilities: ['Fast'],
       specialMechanics: 'Swarm unit'
     },
@@ -44,7 +44,7 @@ export class WikiCardLoader {
       rarity: 'Common',
       type: 'Minion',
       description: 'Small fire creature with damage over time',
-      imageUrl: 'https://via.placeholder.com/200x300/DC2626/FFFFFF?text=Fire+Imp',
+      imageUrl: '/src/assets/cards/fire-imp-real.jpg',
       abilities: ['DOT'],
       specialMechanics: 'Fire damage'
     },
@@ -170,9 +170,51 @@ export class WikiCardLoader {
       rarity: 'Rare',
       type: 'Minion',
       description: 'Stealthy assassin with high damage',
-      imageUrl: 'https://via.placeholder.com/200x300/374151/FFFFFF?text=Shadow+Assassin',
+      imageUrl: '/src/assets/cards/assassin-real.png',
       abilities: ['Stealth'],
       specialMechanics: 'First strike'
+    },
+    'colossus': {
+      id: 'colossus',
+      name: 'Colossus',
+      cost: 8,
+      health: 400,
+      damage: 100,
+      faction: 'Neutral',
+      rarity: 'Legendary',
+      type: 'Minion',
+      description: 'Massive creature with enormous health',
+      imageUrl: '/src/assets/cards/colossus-real.png',
+      abilities: ['Armored', 'Taunt'],
+      specialMechanics: 'Damage reduction'
+    },
+    'guardian': {
+      id: 'guardian',
+      name: 'Guardian',
+      cost: 5,
+      health: 150,
+      damage: 60,
+      faction: 'Crystal Elf',
+      rarity: 'Rare',
+      type: 'Minion',
+      description: 'Protective creature with defensive abilities',
+      imageUrl: '/src/assets/cards/guardian-real.png',
+      abilities: ['Taunt', 'Shield'],
+      specialMechanics: 'Damage mitigation'
+    },
+    'master-apep': {
+      id: 'master-apep',
+      name: 'Master Apep',
+      cost: 7,
+      health: 250,
+      damage: 120,
+      faction: 'Accursed',
+      rarity: 'Legendary',
+      type: 'Minion',
+      description: 'Ancient serpent master with powerful magic',
+      imageUrl: '/src/assets/cards/master-apep.png',
+      abilities: ['Spell Power', 'Lifesteal'],
+      specialMechanics: 'Ancient magic'
     },
     'stone-golem': {
       id: 'stone-golem',
