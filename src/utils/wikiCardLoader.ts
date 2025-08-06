@@ -174,9 +174,9 @@ export class WikiCardLoader {
       abilities: ['Ranged'],
       specialMechanics: 'Crystal synergy'
     },
-    'shadow-assassin': {
-      id: 'shadow-assassin',
-      name: 'Shadow Assassin',
+    'assassin': {
+      id: 'assassin',
+      name: 'Assassin',
       cost: 4,
       health: 70,
       damage: 90,
@@ -184,7 +184,7 @@ export class WikiCardLoader {
       rarity: 'Rare',
       type: 'Minion',
       description: 'Stealthy assassin with high damage',
-      imageUrl: '/src/assets/cards/assassin-real.png',
+      imageUrl: '/src/assets/cards/assassin-wiki.png',
       abilities: ['Stealth'],
       specialMechanics: 'First strike'
     },
@@ -198,7 +198,7 @@ export class WikiCardLoader {
       rarity: 'Legendary',
       type: 'Minion',
       description: 'Massive creature with enormous health',
-      imageUrl: '/src/assets/cards/colossus-real.png',
+      imageUrl: '/src/assets/cards/colossus-wiki.png',
       abilities: ['Armored', 'Taunt'],
       specialMechanics: 'Damage reduction'
     },
@@ -212,7 +212,7 @@ export class WikiCardLoader {
       rarity: 'Rare',
       type: 'Minion',
       description: 'Protective creature with defensive abilities',
-      imageUrl: '/src/assets/cards/guardian-real.png',
+      imageUrl: '/src/assets/cards/guardian-wiki.png',
       abilities: ['Taunt', 'Shield'],
       specialMechanics: 'Damage mitigation'
     },
