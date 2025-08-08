@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { TestConfigurationPanel } from '@/components/TestConfigurationPanel';
 import { TestResultsPanel } from '@/components/TestResultsPanel';
+import { WikiCardDownloader } from '@/components/WikiCardDownloader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DeckGenerator, TestResults } from '@/utils/deckGenerator';
@@ -123,6 +124,11 @@ export function BruteForceTestingPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Wiki Card Download Section */}
+          <div className="mb-8">
+            <WikiCardDownloader />
           </div>
 
           {/* Main Content */}
