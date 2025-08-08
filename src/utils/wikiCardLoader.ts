@@ -386,8 +386,15 @@ export class WikiCardLoader {
       .join(' ');
   }
 
-  // Generate themed placeholder images based on card type and name
+  // Generate image URL - prioritize downloaded wiki images
   private static generateImageUrl(cardId: string, cardName: string): string {
+    // First check for downloaded wiki images
+    const wikiImagePath = this.getWikiImagePath(cardId, cardName);
+    if (wikiImagePath) {
+      return wikiImagePath;
+    }
+
+    // Fallback to themed placeholder images
     const colors = {
       'fire': 'DC2626', // Red
       'ice': '06B6D4', // Cyan
@@ -435,6 +442,41 @@ export class WikiCardLoader {
     }
 
     return `https://via.placeholder.com/200x300/${color}/FFFFFF?text=${encodeURIComponent(displayName)}`;
+  }
+
+  // Get downloaded wiki image path for a card
+  private static getWikiImagePath(cardId: string, cardName: string): string | null {
+    // Convert card names to filename format (lowercase, spaces to hyphens)
+    const filename = cardName.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+
+    // Check if we have this card downloaded
+    if (this.hasDownloadedImage(filename) || this.hasDownloadedImage(cardId)) {
+      // Return the path to the downloaded image
+      return `/src/assets/cards/${filename}.png`;
+    }
+
+    return null;
+  }
+
+  // Check if we have a downloaded image for this card
+  private static hasDownloadedImage(identifier: string): boolean {
+    // Get list of downloaded cards from localStorage (set by WikiCardDownloader)
+    const downloadedCards = localStorage.getItem('downloadedCards');
+    if (downloadedCards) {
+      const cardList = JSON.parse(downloadedCards);
+      return cardList.includes(identifier) || cardList.includes(identifier.toLowerCase());
+    }
+    
+    // Fallback: assume we have images for cards that we know exist
+    const knownDownloadedCards = [
+      'scrat', 'assassin', 'colossus', 'guardian', 'fire-imp', 'master-apep'
+    ];
+    
+    return knownDownloadedCards.includes(identifier.toLowerCase());
   }
 
   // Load multiple cards

@@ -129,6 +129,7 @@ export function WikiCardDownloader() {
 
     let successCount = 0;
     const totalCards = WIKI_CARD_NAMES.length;
+    const downloadedCardsList: string[] = [];
 
     for (let i = 0; i < totalCards; i++) {
       const cardName = WIKI_CARD_NAMES[i];
@@ -139,16 +140,28 @@ export function WikiCardDownloader() {
       if (success) {
         successCount++;
         setDownloadedCount(successCount);
+        
+        // Convert card name to file-safe formats and add to list
+        const filename = cardName.toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim();
+        
+        downloadedCardsList.push(filename);
+        downloadedCardsList.push(cardName.toLowerCase().replace(/\s+/g, '-'));
+        downloadedCardsList.push(cardName);
       }
       
       const progressPercent = ((i + 1) / totalCards) * 100;
       setProgress(progressPercent);
     }
 
-    // Speichere Download-Status
+    // Speichere Download-Status und Kartenliste
     localStorage.setItem('wiki-cards-downloaded', 'true');
     localStorage.setItem('wiki-cards-count', successCount.toString());
     localStorage.setItem('wiki-cards-download-date', new Date().toISOString());
+    localStorage.setItem('downloadedCards', JSON.stringify(downloadedCardsList));
 
     setIsDownloading(false);
     setIsDownloaded(true);
@@ -164,6 +177,7 @@ export function WikiCardDownloader() {
     localStorage.removeItem('wiki-cards-downloaded');
     localStorage.removeItem('wiki-cards-count');
     localStorage.removeItem('wiki-cards-download-date');
+    localStorage.removeItem('downloadedCards');
     setIsDownloaded(false);
     setDownloadedCount(0);
     setProgress(0);
